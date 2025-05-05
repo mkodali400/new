@@ -43,5 +43,5 @@ pipeline:
                   identifier: ArtifactoryUpload_1
                   spec:
                     connectorRef: mahesh_jfrog
-                    target: https://maheshkodali.jfrog.io/artifactory/api/maven/maven-build-libs-snapshot
+                    target: maven-build-libs-snapshot/com/example/eureka/0.0.1-SNAPSHOT/i27-eureka-0.0.1-SNAPSHOT.jar
                     sourcePath: target/i27-eureka-0.0.1-SNAPSHOT.jar
