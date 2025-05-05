@@ -34,4 +34,6 @@ pipeline:
                   identifier: build
                   spec:
                     shell: Sh
-                    command: mvn clean package -DskipTests=true
+                    command: |-
+                      mvn clean package -DskipTests=true
+                      ls -lrt
