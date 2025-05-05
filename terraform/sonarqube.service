@@ -1,0 +1,24 @@
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+Environment="JAVA_HOME=/home/ec2-user/jdk17"
+Environment="SONAR_JAVA_PATH=/home/ec2-user/jdk17"
+PermissionsStartOnly=true
+ExecStart=/home/ec2-user/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/home/ec2-user/sonarqube/bin/linux-x86-64/sonar.sh stop
+ExecReload=/home/ec2-user/sonarqube/bin/linux-x86-64/sonar.sh restart
+PIDFile=/home/ec2-user/sonarqube/bin/linux-x86-64/./SonarQube.pid
+StandardOutput=syslog
+LimitNOFILE=131072
+LimitNPROC=8192
+TimeoutStartSec=5
+Restart=always
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

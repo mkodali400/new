@@ -1,0 +1,50 @@
+- name: To configure SonarQube
+  hosts: sonar
+  tasks:
+    - name: Download and extract JDK
+      ansible.builtin.unarchive:
+        src: https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz
+        dest: /home/ec2-user/
+        remote_src: yes
+        creates: /home/ec2-user/jdk-17.0.2
+
+    - name: Download SonarQube
+      ansible.builtin.unarchive:
+        src: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.3.79811.zip
+        dest: /home/ec2-user/
+        remote_src: yes
+        creates: /home/ec2-user/sonarqube-9.9.3.79811
+
+    - name: Rename JDK directory to jdk17
+      ansible.builtin.command: mv /home/ec2-user/jdk-17.0.2 /home/ec2-user/jdk17
+      args:
+        creates: /home/ec2-user/jdk17
+
+    - name: Rename Sonarqube
+      ansible.builtin.command: mv /home/ec2-user/sonarqube-9.9.3.79811 /home/ec2-user/sonarqube
+      args:
+        creates: /home/ec2-user/sonarqube
+
+    - name: Copy Startup Service Script to Remote Server
+      ansible.builtin.template:
+          src: sonarqube.service
+          dest: /etc/systemd/system
+          owner: ec2-user
+          group: ec2-user
+          mode: 0755
+      become: true
+
+    - name: Add SONAR_JAVA_PATH to sonar.sh
+      ansible.builtin.shell: |
+        sed -i '2i SONAR_JAVA_PATH=/home/ec2-user/jdk17/bin/java' /home/ec2-user/sonarqube/bin/linux-x86-64/sonar.sh
+
+    - name: Start Sonar Service
+      ansible.builtin.systemd:
+          name: sonarqube
+          enabled: yes
+          state: started
+          daemon_reload: true
+      become: true
+
+
+

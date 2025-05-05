@@ -1,0 +1,46 @@
+Creds
+        master-slave	SSH Username with private key
+
+        gcpkodalimahesh@gmail.com/****** (jenkins-git)	Username with password
+
+        jenkins-ECR	Secret text
+
+        jenkins-sonar	Secret text
+
+        sonar-jenkins	Secret text
+        jenkins-docker Username with password
+
+        docker-pass  Username with password
+
+sonar webhooks http://IP:8080/sonarqube-webhook/
+
+setup agent
+            -Djava.io.tmpdir=/home/ec2-user/jenkins
+
+add Tools
+             Maven-3.8.8 /home/ec2-user/apache-maven-3.8.8
+             JDK-17 /home/ec2-user/jdk-17.0.2
+
+install plugin
+                stage view, pipeline utility steps, Jacoco, SonarQube Scanner, HTML Publisher
+
+add docker IP to environment variables
+
+configure both extended mail and mail
+mail setup
+smtp.gmail.com
+
+aws ecr get-login-password --region us-east-1
+aws ecr get-login-password --region us-east-1
+
+Add My-SonarQube-Server details in jenkins configurations
+update sonar URL in jenkins
+
+update sonar URL in Jenkinsfile
+
+approve
+method org.apache.maven.model.Model getArtifactId
+method org.apache.maven.model.Model getVersion
+method org.apache.maven.model.Model getVersion
+
+sonar webhooks http://IP:8080/sonarqube-webhook/

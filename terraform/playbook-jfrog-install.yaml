@@ -1,0 +1,4 @@
+name: Jfrog Install
+tasks:
+  -name: Download JDK
+    

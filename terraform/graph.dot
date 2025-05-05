@@ -1,0 +1,13 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  "aws_ebs_volume.ebs-volume" [label="aws_ebs_volume.ebs-volume"];
+  "aws_instance.ec2" [label="aws_instance.ec2"];
+  "aws_key_pair.key_pair" [label="aws_key_pair.key_pair"];
+  "aws_security_group.SG" [label="aws_security_group.SG"];
+  "aws_volume_attachment.ebs-to-ec2" [label="aws_volume_attachment.ebs-to-ec2"];
+  "aws_instance.ec2" -> "aws_key_pair.key_pair";
+  "aws_instance.ec2" -> "aws_security_group.SG";
+  "aws_volume_attachment.ebs-to-ec2" -> "aws_ebs_volume.ebs-volume";
+  "aws_volume_attachment.ebs-to-ec2" -> "aws_instance.ec2";
+}

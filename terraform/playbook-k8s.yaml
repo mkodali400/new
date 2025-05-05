@@ -1,0 +1,127 @@
+- name: K8s-Setup
+  hosts: k8s-master
+  become: true
+  tasks:
+    - name: add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Docker Install
+      dnf:
+        name: docker
+        state: present
+
+    - name: Enable service docker
+      service:
+        name: docker
+        enabled: yes
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: Install kubeadm, kubelet, and kubectl
+      dnf:
+        name: "{{ item }}-1.28.9-2.1"
+        state: present
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: setup control-plane node
+      command: kubeadm init
+      register: kubeadm_output
+      ignore_errors: yes
+
+    - name: Load br_netfilter, enable ip_forwarding and Set up kubectl for the current user
+      shell: |
+        modprobe br_netfilter
+        echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+        echo 1 > /proc/sys/net/ipv4/ip_forward
+        mkdir -p $HOME/.kube
+        sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+    - name: Install Calico network plugin
+      command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+---
+
+
+  hosts: k8s-slave
+  become: true
+  tasks:
+    - name: add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Docker Install
+      dnf:
+        name: docker
+        state: present
+
+    - name: Enable service docker
+      service:
+        name: docker
+        enabled: yes
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: Install kubeadm, kubelet, and kubectl
+      dnf:
+        name: "{{ item }}-1.28.9-2.1"
+        state: present
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: Join worker nodes to the cluster
+      command: "{{ hostvars['master']['kubeadm_output']['stdout_lines'][0] }}"
+      when: "'kubeadm join' in hostvars['master']['kubeadm_output']['stdout']"
+
+---
+  hosts: k8s-slave1
+  become: true
+  tasks:
+    - name: add ec2-user to docker group
+      user:
+        name: root
+        groups: docker
+        append: yes
+
+    - name: Docker Install
+      dnf:
+        name: docker
+        state: present
+
+    - name: Enable service docker
+      service:
+        name: docker
+        enabled: yes
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: Install kubeadm, kubelet, and kubectl
+      dnf:
+        name: "{{ item }}-1.28.9-2.1"
+        state: present
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: Join worker nodes to the cluster
+      command: "{{ hostvars['master']['kubeadm_output']['stdout_lines'][0] }}"
+      when: "'kubeadm join' in hostvars['master']['kubeadm_output']['stdout']"

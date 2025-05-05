@@ -1,0 +1,89 @@
+- name: Jenkins slave configuration
+  hosts: jenkins-slave
+  become: true
+  tasks:
+    - name: Install Java
+      dnf:
+        name: java-17-amazon-corretto.x86_64
+        state: present
+
+    - name: Install Git
+      dnf:
+        name: git
+        state: present
+
+    - name: Install sshpass
+      dnf:
+        name: sshpass
+        state: present
+
+    - name: Install Trivy
+      shell: "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sh -s -- -b /home/ec2-user/"
+      args:
+        creates: /home/ec2-user/trivy
+
+    - name: Add Trivy to PATH in .bashrc
+      lineinfile:
+        path: /home/ec2-user/.bashrc
+        line: 'export PATH=$PATH:/home/ec2-user/'
+        state: present
+
+    - name: maven download
+      get_url:
+        url: https://dlcdn.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz
+        dest: /home/ec2-user/
+        mode: '0777'
+
+    - name: Extract maven
+      ansible.builtin.unarchive:
+        src: /home/ec2-user/apache-maven-3.8.8-bin.tar.gz
+        dest: /home/ec2-user/
+        remote_src: yes
+
+    - name: JDK download
+      get_url:
+        url: https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz
+        dest: /home/ec2-user/
+        mode: '0777'
+
+    - name: Extract JDK
+      ansible.builtin.unarchive:
+        src: /home/ec2-user/openjdk-17.0.2_linux-x64_bin.tar.gz
+        dest: /home/ec2-user/
+        remote_src: yes
+
+    - name: Create jenkins root dirctory
+      file:
+        path: /home/ec2-user/jenkins
+        state: directory
+        mode: '0777'
+
+    - name: Docker Install
+      dnf:
+        name: docker
+        state: present
+
+    - name: add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Enable service httpd, and not touch the state
+      service:
+        name: docker
+        enabled: yes
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+
+    - name: Create jenkins root dirctory
+      file:
+        path: /var/run/docker.sock
+        state: file
+        mode: '0777'
+
+    - name: change permissions
+      shell: "chown -R ec2-user /home/ec2-user/*"

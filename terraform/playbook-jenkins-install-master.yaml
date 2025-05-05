@@ -1,0 +1,49 @@
+- name: To install Jenkins in master
+  hosts: jenkins-master # make sure to add -Djava.io.tmpdir=/home/ec2-user/jenkins as my them dir has less space
+  become: yes
+  tasks:
+    - name: To add Jenkins to YUM repository
+      ansible.builtin.yum_repository:
+        name: jenkins-stable
+        description: "Jenkins repository"
+        baseurl: https://pkg.jenkins.io/redhat-stable
+        gpgcheck: yes
+
+    - name: GPG key check
+      ansible.builtin.rpm_key:
+        state: present
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+    - name: install jdk
+      dnf:
+        name: java-17-amazon-corretto.x86_64
+        state: present
+
+    - name: Install Git
+      dnf:
+        name: git
+        state: present
+
+    - name: install jenkins
+      dnf:
+        name: jenkins
+        state: present
+
+    - name: Enable Jenkins and restart
+      ansible.builtin.service:
+        name: jenkins
+        enabled: true
+        state: restarted
+
+    - name: capture jenkins initial admin password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: initialAdminPassword
+
+    - name: display initialAdminPassword
+      debug:
+        var: initialAdminPassword.stdout_lines
+
+    - name: Save the Jenkins initial admin password to a local file
+      copy:
+        content: "{{ initialAdminPassword.stdout }}"
+        dest: "/home/ec2-user/jenkins_password.txt"
