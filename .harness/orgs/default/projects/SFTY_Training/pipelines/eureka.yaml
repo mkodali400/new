@@ -34,6 +34,6 @@ pipeline:
                   identifier: maven_build
                   spec:
                     shell: Sh
-                    command: |-
-                      apt install openjdk-17-jdk
+                    image: maven:3.8.6-openjdk-17
+                    command: |
                       mvn clean package -DskipTests=true
