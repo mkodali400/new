@@ -35,8 +35,5 @@ pipeline:
                   spec:
                     shell: Sh
                     command: |-
-                      sudo apt install openjdk-17-jdk
-                      export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-                      export PATH=$JAVA_HOME/bin:$PATH
-                      java -version
+                      apt install openjdk-17-jdk
                       mvn clean package -DskipTests=true
