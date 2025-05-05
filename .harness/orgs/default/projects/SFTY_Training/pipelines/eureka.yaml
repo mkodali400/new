@@ -37,24 +37,6 @@ pipeline:
                     command: |-
                       mvn clean package -DskipTests=true
                       ls -lrt target
-    - stage:
-        name: push_jfrog
-        identifier: push_jfrog
-        description: ""
-        type: CI
-        spec:
-          cloneCodebase: true
-          caching:
-            enabled: true
-            override: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
-          execution:
-            steps:
               - step:
                   type: ArtifactoryUpload
                   name: ArtifactoryUpload_1
