@@ -36,4 +36,4 @@ pipeline:
                     shell: Sh
                     command: |-
                       mvn clean package -DskipTests=true
-                      ls -lrt
+                      ls -lrt target
