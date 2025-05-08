@@ -44,4 +44,11 @@ pipeline:
                   spec:
                     connectorRef: mahesh_jfrog
                     target: maven-build-libs-snapshot/
-                    sourcePath: target/
+                    sourcePath: target/i27-eureka-0.0.1-SNAPSHOT.jar
+              - step:
+                  type: Run
+                  name: docker-build
+                  identifier: dockerbuild
+                  spec:
+                    shell: Sh
+                    command: docker build -t DskipTest .
