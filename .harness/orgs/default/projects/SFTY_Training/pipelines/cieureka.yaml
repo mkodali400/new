@@ -52,3 +52,15 @@ pipeline:
                   spec:
                     shell: Sh
                     command: docker build -t mahesh .
+              - step:
+                  type: Run
+                  name: Run_3
+                  identifier: Run_3
+                  spec:
+                    shell: Sh
+                    command: |-
+                      export DOCKER_USERNAME=$(vault kv get -field=username secret/docker)
+                      export DOCKER_PASSWORD=$(vault kv get -field=password secret/docker)
+                      echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                      docker tag mahesh:latest mahesh/mahesh-eureka:latest
+                      docker push mahesh/mahesh-eureka:latest
