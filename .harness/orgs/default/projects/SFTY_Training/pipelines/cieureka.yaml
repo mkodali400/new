@@ -51,4 +51,4 @@ pipeline:
                   identifier: dockerbuild
                   spec:
                     shell: Sh
-                    command: docker build -t DskipTest .
+                    command: docker build -t mahesh .
