@@ -11,9 +11,9 @@ pipeline:
         build: <+input>
   stages:
     - stage:
-        name: build
-        identifier: build
-        description: ""
+        name: build-and-push
+        identifier: buildandpush
+        description: Build and push Docker image
         type: CI
         spec:
           cloneCodebase: true
@@ -47,6 +47,18 @@ pipeline:
                     sourcePath: target/i27-eureka-0.0.1-SNAPSHOT.jar
               - step:
                   type: Run
+                  name: docker-login
+                  identifier: dockerlogin
+                  spec:
+                    shell: Sh
+                    command: |-
+                      # Retrieve Docker Hub credentials from Vault
+                      export DOCKER_USERNAME=$(vault kv get -field=username secret/docker)
+                      export DOCKER_PASSWORD=$(vault kv get -field=password secret/docker)
+                      # Login to Docker Hub non-interactively
+                      echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+              - step:
+                  type: Run
                   name: docker-build
                   identifier: dockerbuild
                   spec:
@@ -54,13 +66,24 @@ pipeline:
                     command: docker build -t mahesh .
               - step:
                   type: Run
-                  name: Run_3
-                  identifier: Run_3
+                  name: docker-tag
+                  identifier: dockertag
+                  spec:
+                    shell: Sh
+                    command: docker tag mahesh:latest mkodalihr400/vault-harness-integration:latest
+              - step:
+                  type: Run
+                  name: docker-push
+                  identifier: dockerpush
+                  spec:
+                    shell: Sh
+                    command: docker push mkodalihr400/vault-harness-integration:latest
+              - step:
+                  type: Run
+                  name: cleanup
+                  identifier: cleanup
                   spec:
                     shell: Sh
                     command: |-
-                      export DOCKER_USERNAME=$(vault kv get -field=username secret/docker)
-                      export DOCKER_PASSWORD=$(vault kv get -field=password secret/docker)
-                      echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                      docker tag mahesh:latest mahesh/mahesh-eureka:latest
-                      docker push mahesh/mahesh-eureka:latest
+                      # Any necessary clean up steps
+                      echo "Cleanup complete"
